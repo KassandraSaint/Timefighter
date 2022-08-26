@@ -1,5 +1,6 @@
 package com.raywenderlich.timefighter
 
+import android.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -7,6 +8,10 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.view.animation.AnimationUtils
+
 
 class MainActivity : AppCompatActivity() {
     private val TAG = MainActivity::class.java.simpleName
@@ -33,7 +38,10 @@ class MainActivity : AppCompatActivity() {
         timeLeftTextView = findViewById(R.id.time_left_text_view)
         tapMeButton = findViewById(R.id.tap_me_button)
 
-        tapMeButton.setOnClickListener { incrementScore() }
+        tapMeButton.setOnClickListener {view ->
+            val bounceAnimation = AnimationUtils.loadAnimation(this, R.anim.bounce)
+            view.startAnimation(bounceAnimation)
+            incrementScore() }
 
         if (savedInstanceState != null) {
             score = savedInstanceState.getInt(SCORE_KEY)
@@ -57,6 +65,17 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy called.")
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.about_item) {
+            showInfo() }
+        return true
     }
 
     private fun incrementScore() {
@@ -118,6 +137,16 @@ class MainActivity : AppCompatActivity() {
     private fun endGame() {
         Toast.makeText(this, getString(R.string.game_over_message, score), Toast.LENGTH_LONG).show()
         resetGame()
+    }
+    
+    private fun showInfo() {
+        val dialogTitle = getString(R.string.about_title, BuildConfig.VERSION_NAME)
+        val dialogMessage = getString(R.string.about_message)
+        
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(dialogTitle)
+        builder.setMessage(dialogMessage)
+        builder.create().show()
     }
 
     companion object {
